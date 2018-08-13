@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <title>Socket.IO chat</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="/translator/style.css">
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.slim.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script>
+    $(function () {
+        var socket = io.connect('http://localhost:3000');
+        socket.emit('translator', true);
+        var players = 0;
+
+        socket.on('state', function(game){
+            $('body').html('');
+
+            console.log(game.fields);
+
+            game.fields.forEach(function(item, i, arr) {
+                $('#f' + (i + 1)).text(item.name);
+            });
+
+            $('body').append(
+                '<table id="players" class="table">' +
+                    '<thead>' +
+                        '<tr>' +
+                            '<th>Имя</th>' +
+                            '<th>Деньги</th>' +
+                            '<th>Карты</th>' +
+                            '<th>Трофеи</th>' +
+                            '<th>Карточки компаний</th>' +
+                            '<th>Оракул</th>' +
+                            '<th>Ущербный орк</th>' +
+                        '</tr>' +
+                    '</thead>' +
+                    '<tbody></tbody>' +
+                '</table>'
+            );
+
+            var fields = [];
+
+            game.fields.forEach(function(field, i, arr) {
+                var companies = '';
+                
+                fields.push(
+                    '<td id="f' + i + '">' + 
+                        '<div class="card text-center field">' +
+                            '<div class="card-header">' +
+                                '<div><span class="badge badge-' + (field.profit > 0 ? 'secondary' : 'danger') + ' field-profit">' + 
+                                    (field.profit > 0 ? '+' + field.profit : field.profit) + 
+                                '</span><span>🎲' + field.cost + '</span></div>' +
+                            '</div>' +
+                            '<div class="card-body">' +
+                                '<h5 class="card-title">' + field.name + '</h5>' +
+                                '<p class="card-text"></p>' +
+                                '<a href="#" class="btn btn-primary">Go somewhere</a>' +
+                            '</div>' +
+                            '<div class="card-footer text-muted">2 days ago</div>' +
+                        '</div>' +
+                    '</td>'
+                );
+            });
+
+            var fields_html = '<table id="fields"><tr>';
+            fields_html += fields[0] + fields[1] + fields[2] + fields[3] + '</tr><tr>';
+            fields_html += fields[9] + '<td id="center" colspan="2">0</td>' + fields[4] + '</tr><tr>';
+            fields_html += fields[8] + fields[7] + fields[6] + fields[5] + '</tr></table>';
+
+            $('body').append(fields_html);
+
+            game.players.forEach(function(player, i, arr){
+                $('#players').append(
+                '<tr>' +
+                    '<td id="p' + 1 + '_name">' + player.name + '</td>' +
+                    '<td id="p' + 1 + '_money">' + player.money + '</td>' +
+                    '<td id="p' + 1 + '_cards">' + player.cards + '</td>' +
+                    '<td id="p' + 1 + '_trophy">' + player.trophy + '</td>' +
+                    '<td id="p' + 1 + '_company_chips">' + player.company_chips + '</td>' +
+                    '<td id="p' + 1 + '_oracle">' + player.oracle + '</td>' +
+                    '<td id="p' + 1 + '_flawed">' + player.flawed + '</td>' +
+                '</tr>'
+            );
+            });
+        });
+
+        socket.on('new_player', function(name){
+            console.log('new_player ' + name);
+            ++players;
+            newPlayer(name, players);
+        });
+
+        socket.on('set_fields', function(fields){
+            fields.forEach(function(item, i, arr) {
+                $('#f' + (i + 1)).text(item.name);
+            });
+        });
+    });
+</script>
+</body>
+</html>

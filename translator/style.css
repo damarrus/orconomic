@@ -1,0 +1,23 @@
+/* #field {
+    border-collapse: collapse;
+}
+
+#field td {
+    border: 1px solid black;
+} */
+
+.field {
+    
+}
+
+#fields {
+    margin: 0 auto;
+}
+
+#fields .card {
+    width: 350px;
+}
+
+.field-profit {
+    font-size: 20px;
+}
