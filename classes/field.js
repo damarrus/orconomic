@@ -8,7 +8,7 @@ module.exports = class Field
         this.profit = field.profit;
         this.max_companies = field.max_companies;
         this.number_dice = field.number_dice;
-        this.cost = field.number_dice;
+        this.cost = (field.number_dice != 2 ? field.number_dice : 12);
         this.probability = field.probability;
         this.active = false;
         this.active_side = false;
