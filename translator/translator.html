@@ -47,14 +47,20 @@
 
             game.fields.forEach(function(field, i, arr) {
                 var companies = '';
+                if (field.cost == 2) {
+                    field.cost = '2/12';
+                }
                 
                 fields.push(
                     '<td id="f' + i + '">' + 
                         '<div class="card text-center field">' +
                             '<div class="card-header">' +
-                                '<div><span class="badge badge-' + (field.profit > 0 ? 'secondary' : 'danger') + ' field-profit">' + 
-                                    (field.profit > 0 ? '+' + field.profit : field.profit) + 
-                                '</span><span>🎲' + field.cost + '</span></div>' +
+                                '<div>' +
+                                    '<span class="field-profit badge badge-' + (field.profit > 0 ? 'secondary' : 'danger') + '">' + 
+                                        (field.profit > 0 ? '+' + field.profit : field.profit) + '</span>' +
+                                    '<span class="field-cost badge badge-info"> 🎲' + field.cost + '</span>' +
+                                    '<span class="field-cost badge badge-warning"> 🌟' + field.probability + '</span>' +
+                                '</div>' +
                             '</div>' +
                             '<div class="card-body">' +
                                 '<h5 class="card-title">' + field.name + '</h5>' +

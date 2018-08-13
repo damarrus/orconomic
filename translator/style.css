@@ -18,6 +18,7 @@
     width: 350px;
 }
 
-.field-profit {
+.field-profit, .field-cost {
     font-size: 20px;
+    margin: 0 5px;
 }
