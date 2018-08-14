@@ -2,7 +2,7 @@ module.exports = class Player
 {
     constructor(socket, name) 
     {
-        this.socket = false; //socket;
+        //this.socket = socket;
         this.player_key = false;
         this.number = 0;
         this.oracle = false;

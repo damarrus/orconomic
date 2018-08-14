@@ -2,13 +2,15 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
+var _ = require('lodash');
+
 const Player = require('./classes/player.js');
 const Game = require('./classes/game.js');
 const Company = require('./classes/company.js');
 
 app.get('/translator', function(req, res){res.sendFile(__dirname + '/translator/translator.html');});
 app.get('/translator/style.css', function(req, res){res.sendFile(__dirname + '/translator/style.css');});
-
+app.get('/translator/app.js', function(req, res){res.sendFile(__dirname + '/translator/app.js');});
 
 app.get('/', function(req, res){res.sendFile(__dirname + '/client/client.html');});
 app.get('/client/style.css', function(req, res){res.sendFile(__dirname + '/client/style.css');});
@@ -20,6 +22,18 @@ var translator = false;
 
 function translatorData(translator) {
     if (translator) {
+        //var state = _.clone_deep
+        // console.log(state);
+        // state.players.forEach(function(player, i, arr) {
+        //     delete player.socket;
+        //     delete player.companies;
+        // });
+        // state.fields.forEach(function(field, i, arr) {
+        //     field.companies.forEach(function(company, i, arr) {
+        //         delete company.field;
+        //         delete company.player;
+        //     });
+        // });
         translator.emit('state', game);
     }
 }
@@ -45,6 +59,7 @@ io.on('connection', function(socket){
             player.key = player_key;
             console.log('new player ' + name);
             socket.emit('set_player', true);
+            socket.emit('set_fields', game.fields);
             translatorData(translator);
         }
     });
@@ -53,6 +68,7 @@ io.on('connection', function(socket){
         console.log('field_key ' + field_key);
         game.setStartCompany(field_key, socket.player);
         socket.emit('set_start_company', true);
+        translatorData(translator);
     });
 
     socket.on('disconnect', function(){

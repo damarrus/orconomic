@@ -19,6 +19,6 @@ module.exports = class Field
     setCompany(player) {
         var company = new Company(player, this, true);
         this.companies.push(company);
-        player.companies.push(company);
+        //player.companies.push(company);
     }
 }
