@@ -37,7 +37,16 @@ $(function () {
 
         game.fields.forEach(function(field, i, arr) {
             var companies = '';
-            for (var i = 0; i < field.max_companies; i++) {
+
+            var i = 0;
+
+            field.companies.forEach(function(company) {
+                console.log(company.player);
+                ++i;
+                companies += '<span class="field-company badge badge-' + player_classes[company.player] + '">🏭</span>';
+            });
+
+            for (; i < field.max_companies; i++) {
                 companies += '<span class="field-company badge badge-secondary">🏭</span>';
             }
 

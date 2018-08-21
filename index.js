@@ -11,6 +11,7 @@ const Company = require('./classes/company.js');
 app.get('/translator', function(req, res){res.sendFile(__dirname + '/translator/translator.html');});
 app.get('/translator/style.css', function(req, res){res.sendFile(__dirname + '/translator/style.css');});
 app.get('/translator/app.js', function(req, res){res.sendFile(__dirname + '/translator/app.js');});
+app.get('/translator/data.js', function(req, res){res.sendFile(__dirname + '/translator/data.js');});
 
 app.get('/', function(req, res){res.sendFile(__dirname + '/client/client.html');});
 app.get('/client/style.css', function(req, res){res.sendFile(__dirname + '/client/style.css');});
@@ -22,19 +23,19 @@ var translator = false;
 
 function translatorData(translator) {
     if (translator) {
-        //var state = _.clone_deep
-        // console.log(state);
-        // state.players.forEach(function(player, i, arr) {
-        //     delete player.socket;
-        //     delete player.companies;
-        // });
-        // state.fields.forEach(function(field, i, arr) {
-        //     field.companies.forEach(function(company, i, arr) {
-        //         delete company.field;
-        //         delete company.player;
-        //     });
-        // });
-        translator.emit('state', game);
+        var state = _.cloneDeep(game);
+        state.players.forEach(function(player, i, arr) {
+            delete player.socket;
+            delete player.companies;
+        });
+        state.fields.forEach(function(field, i, arr) {
+            field.companies.forEach(function(company, i, arr) {
+                delete company.field;
+                company.player = company.player.key;
+            });
+        });
+        console.log(state);
+        translator.emit('state', state);
     }
 }
 
@@ -55,8 +56,8 @@ io.on('connection', function(socket){
             player = new Player(socket, name);
             socket.player = player;
             game.players.push(player);
-            var player_key = game.players.indexOf(player);
-            player.key = player_key;
+            var key = game.players.indexOf(player);
+            player.key = key;
             console.log('new player ' + name);
             socket.emit('set_player', true);
             socket.emit('set_fields', game.fields);
