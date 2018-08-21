@@ -4,10 +4,9 @@ module.exports = class Game
 {
     constructor()
     {
-        this.phase = 0;
+        this.phase = 1;
         this.player_turn = 0;
         this.players = [];
-        this.status = 0;
         this.fields = [];
         this.setFields();
         this.current_player = false;

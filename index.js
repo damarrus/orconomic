@@ -4,9 +4,9 @@ var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 var _ = require('lodash');
 
-const Player = require('./classes/player.js');
-const Game = require('./classes/game.js');
-const Company = require('./classes/company.js');
+const Controller = require('./classes/controller');
+var c = new Controller();
+
 
 app.get('/translator', function(req, res){res.sendFile(__dirname + '/translator/translator.html');});
 app.get('/translator/style.css', function(req, res){res.sendFile(__dirname + '/translator/style.css');});
@@ -18,12 +18,11 @@ app.get('/client/style.css', function(req, res){res.sendFile(__dirname + '/clien
 app.get('/client/app.js', function(req, res){res.sendFile(__dirname + '/client/app.js');});
 
 
-var game = new Game();
 var translator = false;
 
 function translatorData(translator) {
     if (translator) {
-        var state = _.cloneDeep(game);
+        var state = _.cloneDeep(c.game);
         state.players.forEach(function(player, i, arr) {
             delete player.socket;
             delete player.companies;
@@ -34,7 +33,6 @@ function translatorData(translator) {
                 company.player = company.player.key;
             });
         });
-        console.log(state);
         translator.emit('state', state);
     }
 }
@@ -42,7 +40,6 @@ function translatorData(translator) {
 io.on('connection', function(socket){
     console.log('connect');
     
-
     socket.on('translator', function(msg){
         console.log('translator connect');
         translator = socket;
@@ -50,26 +47,35 @@ io.on('connection', function(socket){
     });
 
     socket.on('set_player', function(name){
-        if (socket.player) {
-            socket.emit('set_player', false);
-        } else {
-            player = new Player(socket, name);
-            socket.player = player;
-            game.players.push(player);
-            var key = game.players.indexOf(player);
-            player.key = key;
+        var result = c.addNewPlayer(socket, name);
+        if (result.status) {
             console.log('new player ' + name);
             socket.emit('set_player', true);
-            socket.emit('set_fields', game.fields);
+            socket.emit('set_fields', c.game.fields);
             translatorData(translator);
+        } else {
+            socket.emit('set_player', false);
         }
     });
 
-    socket.on('set_start_company', function(field_key){
-        console.log('field_key ' + field_key);
-        game.setStartCompany(field_key, socket.player);
-        socket.emit('set_start_company', true);
-        translatorData(translator);
+    socket.on('start_game_prepare', function(){
+        var result = c.startGamePrepare();
+
+        result.data.socket.emit('res_start_company', true);
+    });
+
+    socket.on('set_start_company', function(field_key) {
+        var result = c.setStartCompany(socket.player, field_key);
+        if (result.status) {
+            //socket.emit('set_start_company', true);
+            result.data.socket.emit('res_start_company', true);
+            socket.emit('res_start_company', false);
+
+            console.log('field_key ' + field_key);
+            translatorData(translator);
+        } else {
+            socket.emit('set_start_company', false);
+        }
     });
 
     socket.on('disconnect', function(){
